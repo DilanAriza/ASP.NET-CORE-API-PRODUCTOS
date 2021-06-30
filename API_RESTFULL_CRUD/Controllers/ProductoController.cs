@@ -1,6 +1,7 @@
 ﻿using API_RESTFULL_CRUD.Context;
 using API_RESTFULL_CRUD.Entities;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -33,27 +34,66 @@ namespace API_RESTFULL_CRUD.Controllers
 
         // GET api/<ProductoController>/5
         [HttpGet("{id}")]
-        public string Get(int id)
+        public Producto Get(string id)
         {
-            return "value";
+            var producto = context.Producto.FirstOrDefault(p => p.pro_codigo == id);
+            return producto;
         }
 
         // POST api/<ProductoController>
         [HttpPost]
-        public void Post([FromBody] string value)
+        public ActionResult Post([FromBody] Producto producto)
         {
+            try
+            {
+                context.Producto.Add(producto);
+                context.SaveChanges();
+                return Ok(); 
+            }
+            catch (Exception ex)
+            {
+                return BadRequest();
+            }
         }
 
         // PUT api/<ProductoController>/5
         [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
+        public ActionResult Put(string id, [FromBody] Producto producto)
         {
+            try
+            {
+                if(producto.pro_codigo == id)
+                {
+                    context.Entry(producto).State = EntityState.Modified;
+                    context.SaveChanges();
+                    return Ok();
+                }
+                else
+                {
+                    return BadRequest();
+                }
+            }
+            catch (Exception ex)
+            {
+                return BadRequest();
+            }
         }
 
         // DELETE api/<ProductoController>/5
         [HttpDelete("{id}")]
-        public void Delete(int id)
+        public ActionResult Delete(string id)
         {
+            var producto = context.Producto.FirstOrDefault(p => p.pro_codigo == id);
+            if(producto != null)
+            {
+                context.Producto.Remove(producto);
+                context.SaveChanges();
+                return Ok();
+            }
+            else
+            {
+                return BadRequest();
+            }
         }
     }
 }
